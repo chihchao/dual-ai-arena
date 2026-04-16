@@ -1,5 +1,29 @@
 import { GoogleGenAI } from '@google/genai'
 
+const RETRYABLE_CODES = [429, 503]
+const MAX_RETRIES = 3
+
+function isRetryable(err) {
+  const code = err?.error?.code ?? err?.code
+  return RETRYABLE_CODES.includes(code)
+}
+
+async function withRetry(fn) {
+  let delay = 5000
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      return await fn()
+    } catch (err) {
+      if (attempt < MAX_RETRIES && isRetryable(err)) {
+        await new Promise((r) => setTimeout(r, delay))
+        delay *= 2
+      } else {
+        throw err
+      }
+    }
+  }
+}
+
 /**
  * Builds the user message content string for a debate turn.
  * @param {string} topic
@@ -37,11 +61,13 @@ export async function* streamDebateTurn(apiKey, { systemPrompt, topic, history, 
     config.tools = [{ googleSearch: {} }]
   }
 
-  const response = await ai.models.generateContentStream({
-    model,
-    config,
-    contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-  })
+  const response = await withRetry(() =>
+    ai.models.generateContentStream({
+      model,
+      config,
+      contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+    })
+  )
 
   for await (const chunk of response) {
     const text = chunk.text
@@ -59,11 +85,13 @@ export async function generateContent(apiKey, { systemPrompt, topic, history, mo
   const ai = new GoogleGenAI({ apiKey })
   const userMessage = buildContextMessage(topic, history)
 
-  const response = await ai.models.generateContent({
-    model,
-    config: { systemInstruction: systemPrompt },
-    contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-  })
+  const response = await withRetry(() =>
+    ai.models.generateContent({
+      model,
+      config: { systemInstruction: systemPrompt },
+      contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+    })
+  )
 
   return response.text
 }
