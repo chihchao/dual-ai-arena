@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ROLE_A_DEFAULT, ROLE_B_DEFAULT } from '../lib/prompts'
-import { MODELS, DEFAULT_ROUNDS, DEFAULT_MODEL, DEFAULT_AUTO_MODE } from '../constants'
+import { DEFAULT_ROUNDS, DEFAULT_MODEL, DEFAULT_AUTO_MODE } from '../constants'
 
 export function ConfigPanel({ onStart, onClearKey, disabled }) {
   const [roleA, setRoleA] = useState(ROLE_A_DEFAULT)
@@ -89,17 +89,13 @@ export function ConfigPanel({ onStart, onClearKey, disabled }) {
         </div>
         <div>
           <label className="block text-xs font-semibold text-gray-600 mb-1">模型</label>
-          <select
+          <input
+            type="text"
             value={model}
             onChange={(e) => setModel(e.target.value)}
             className="w-full border rounded px-2 py-1 text-sm"
-          >
-            {MODELS.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.label}
-              </option>
-            ))}
-          </select>
+            placeholder="例：gemini-2.5-flash"
+          />
         </div>
         <button
           type="submit"

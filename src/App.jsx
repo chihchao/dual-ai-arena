@@ -4,13 +4,16 @@ import { useDebateEngine } from './hooks/useDebateEngine'
 import { ApiKeyModal } from './components/ApiKeyModal'
 import { ConfigPanel } from './components/ConfigPanel'
 import { DebateArena } from './components/DebateArena'
-import { SynthesisCard } from './components/SynthesisCard'
 import { MarpExporter } from './components/MarpExporter'
 import { DEFAULT_MODEL } from './constants'
 
 export default function App() {
   const [apiKey, setApiKey] = useState(() => getApiKey())
-  const { phase, messages, synthesis, error, startDebate, reset } = useDebateEngine()
+  const {
+    phase, messages, synthesis, error,
+    waitingForContinue, continueReason, continueDebate,
+    startDebate, reset,
+  } = useDebateEngine()
   const debateConfigRef = useRef({ topic: '', model: DEFAULT_MODEL })
 
   const handleStart = ({ roleA, roleB, topic, rounds, model, autoMode }) => {
@@ -33,12 +36,19 @@ export default function App() {
       <ConfigPanel
         onStart={handleStart}
         onClearKey={handleClearKey}
-        disabled={isRunning}
+        disabled={isRunning || waitingForContinue}
       />
 
       <main className="flex-1 flex flex-col overflow-hidden">
-        <DebateArena messages={messages} phase={phase} error={error} />
-        <SynthesisCard synthesis={synthesis} />
+        <DebateArena
+          messages={messages}
+          phase={phase}
+          error={error}
+          synthesis={synthesis}
+          waitingForContinue={waitingForContinue}
+          continueReason={continueReason}
+          onContinue={continueDebate}
+        />
         {phase === 'finished' && (
           <MarpExporter
             apiKey={apiKey}

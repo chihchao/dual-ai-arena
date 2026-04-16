@@ -1,27 +1,10 @@
 import { GoogleGenAI } from '@google/genai'
 
-const RETRYABLE_CODES = [429, 503]
-const MAX_RETRIES = 3
-
-function isRetryable(err) {
+export function isRetryable(err) {
   const code = err?.error?.code ?? err?.code
-  return RETRYABLE_CODES.includes(code)
-}
-
-async function withRetry(fn) {
-  let delay = 5000
-  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-    try {
-      return await fn()
-    } catch (err) {
-      if (attempt < MAX_RETRIES && isRetryable(err)) {
-        await new Promise((r) => setTimeout(r, delay))
-        delay *= 2
-      } else {
-        throw err
-      }
-    }
-  }
+  if ([429, 503].includes(code)) return true
+  const msg = err?.message ?? ''
+  return msg.includes('503') || msg.includes('UNAVAILABLE') || msg.includes('429') || msg.includes('Resource has been exhausted')
 }
 
 /**
@@ -54,20 +37,16 @@ export async function* streamDebateTurn(apiKey, { systemPrompt, topic, history, 
   const ai = new GoogleGenAI({ apiKey })
   const userMessage = buildContextMessage(topic, history)
 
-  const config = {
-    systemInstruction: systemPrompt,
-  }
+  const config = { systemInstruction: systemPrompt }
   if (useSearch) {
     config.tools = [{ googleSearch: {} }]
   }
 
-  const response = await withRetry(() =>
-    ai.models.generateContentStream({
-      model,
-      config,
-      contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-    })
-  )
+  const response = await ai.models.generateContentStream({
+    model,
+    config,
+    contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+  })
 
   for await (const chunk of response) {
     const text = chunk.text
@@ -85,13 +64,11 @@ export async function generateContent(apiKey, { systemPrompt, topic, history, mo
   const ai = new GoogleGenAI({ apiKey })
   const userMessage = buildContextMessage(topic, history)
 
-  const response = await withRetry(() =>
-    ai.models.generateContent({
-      model,
-      config: { systemInstruction: systemPrompt },
-      contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-    })
-  )
+  const response = await ai.models.generateContent({
+    model,
+    config: { systemInstruction: systemPrompt },
+    contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+  })
 
   return response.text
 }
