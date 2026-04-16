@@ -10,8 +10,13 @@ export function DebateArena({ messages, phase, error }) {
 
   if (phase === 'idle') {
     return (
-      <div className="flex-1 flex items-center justify-center text-gray-400 text-lg">
-        設定左側參數後，點擊「開始辯論」
+      <div className="flex-1 flex flex-col items-center justify-center gap-4">
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm max-w-md">
+            ⚠️ {error}
+          </div>
+        )}
+        <span className="text-gray-400 text-lg">設定左側參數後，點擊「開始辯論」</span>
       </div>
     )
   }
