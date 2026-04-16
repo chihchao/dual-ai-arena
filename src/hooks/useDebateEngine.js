@@ -9,9 +9,9 @@ export function useDebateEngine() {
   const [error, setError] = useState(null)
   const historyRef = useRef([])
 
-  const runTurn = async (role, name, systemPrompt, topic, apiKey, model) => {
+  const runTurn = useCallback(async (role, name, systemPrompt, topic, apiKey, model) => {
     let accumulated = ''
-    const msgId = Date.now() + Math.random()
+    const msgId = crypto.randomUUID()
     setMessages((prev) => [...prev, { role, name, content: '', id: msgId, streaming: true }])
 
     for await (const chunk of streamDebateTurn(apiKey, {
@@ -33,7 +33,7 @@ export function useDebateEngine() {
 
     historyRef.current = [...historyRef.current, { role, name, content: accumulated }]
     return accumulated
-  }
+  }, [])
 
   const startDebate = useCallback(async ({ apiKey, topic, roleA, roleB, rounds, model, autoMode }) => {
     setError(null)
