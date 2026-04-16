@@ -78,12 +78,12 @@ export function ConfigPanel({ onStart, onClearKey, disabled }) {
           <div className="flex-1">
             <label className="block text-xs font-semibold text-gray-600 mb-1">模式</label>
             <select
-              value={autoMode ? 'auto' : 'manual'}
+              value={autoMode ? 'manual' : 'auto'}
               onChange={(e) => setAutoMode(e.target.value === 'auto')}
               className="w-full border rounded px-2 py-1 text-sm"
             >
-              <option value="auto">自動</option>
               <option value="manual">手動</option>
+              <option value="auto">自動</option>
             </select>
           </div>
         </div>
