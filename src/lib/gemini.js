@@ -44,7 +44,7 @@ export async function* streamDebateTurn(apiKey, { systemPrompt, topic, history, 
   })
 
   for await (const chunk of response) {
-    const text = chunk.text()
+    const text = chunk.text
     if (text) yield text
   }
 }
@@ -65,5 +65,5 @@ export async function generateContent(apiKey, { systemPrompt, topic, history, mo
     contents: [{ role: 'user', parts: [{ text: userMessage }] }],
   })
 
-  return response.text()
+  return response.text
 }
