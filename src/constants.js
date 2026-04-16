@@ -1,6 +1,6 @@
 export const MODELS = [
-  { id: 'gemini-2.5-flash-preview-04-17', label: 'Gemini 2.5 Flash (預設)' },
-  { id: 'gemini-2.5-pro-preview-03-25', label: 'Gemini 2.5 Pro' },
+  { id: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (預設)' },
+  { id: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
 ]
 
 export const DEFAULT_MODEL = MODELS[0].id
