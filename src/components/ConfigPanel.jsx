@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ROLE_A_DEFAULT, ROLE_B_DEFAULT } from '../lib/prompts'
-import { DEFAULT_ROUNDS, DEFAULT_MODEL, DEFAULT_AUTO_MODE } from '../constants'
+import { DEFAULT_ROUNDS, DEFAULT_MODEL, DEFAULT_AUTO_MODE, DEFAULT_USE_RESEARCH } from '../constants'
 
 export function ConfigPanel({ onStart, onClearKey, disabled }) {
   const [roleA, setRoleA] = useState(ROLE_A_DEFAULT)
@@ -9,11 +9,12 @@ export function ConfigPanel({ onStart, onClearKey, disabled }) {
   const [rounds, setRounds] = useState(DEFAULT_ROUNDS)
   const [model, setModel] = useState(DEFAULT_MODEL)
   const [autoMode, setAutoMode] = useState(DEFAULT_AUTO_MODE)
+  const [useResearch, setUseResearch] = useState(DEFAULT_USE_RESEARCH)
 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!topic.trim()) return
-    onStart({ roleA, roleB, topic: topic.trim(), rounds, model, autoMode })
+    onStart({ roleA, roleB, topic: topic.trim(), rounds, model, autoMode, useResearch })
   }
 
   return (
@@ -76,7 +77,7 @@ export function ConfigPanel({ onStart, onClearKey, disabled }) {
             />
           </div>
           <div className="flex-1">
-            <label className="block text-xs font-semibold text-gray-600 mb-1">模式</label>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">進行模式</label>
             <select
               value={autoMode ? 'auto' : 'manual'}
               onChange={(e) => setAutoMode(e.target.value === 'auto')}
@@ -86,6 +87,17 @@ export function ConfigPanel({ onStart, onClearKey, disabled }) {
               <option value="auto">自動</option>
             </select>
           </div>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">開場前搜尋研究</label>
+          <select
+            value={useResearch ? 'on' : 'off'}
+            onChange={(e) => setUseResearch(e.target.value === 'on')}
+            className="w-full border rounded px-2 py-1 text-sm"
+          >
+            <option value="off">關閉（推薦）</option>
+            <option value="on">開啟（需 Google Search 配額）</option>
+          </select>
         </div>
         <div>
           <label className="block text-xs font-semibold text-gray-600 mb-1">模型</label>

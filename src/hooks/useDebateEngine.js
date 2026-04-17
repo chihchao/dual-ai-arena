@@ -116,23 +116,26 @@ export function useDebateEngine() {
     return accumulated
   }, [])
 
-  const startDebate = useCallback(async ({ apiKey, topic, roleA, roleB, rounds, model, autoMode }) => {
+  const startDebate = useCallback(async ({ apiKey, topic, roleA, roleB, rounds, model, autoMode, useResearch }) => {
     setError(null)
     setSynthesis(null)
     setMessages([])
     historyRef.current = []
 
     try {
-      // Pre-debate research phase
-      setPhase('researchA')
-      const researchA = await withRetry(() => runResearch('A', roleA.name, topic, apiKey, model))
+      let promptA = roleA.systemPrompt
+      let promptB = roleB.systemPrompt
 
-      setPhase('researchB')
-      const researchB = await withRetry(() => runResearch('B', roleB.name, topic, apiKey, model))
+      if (useResearch) {
+        setPhase('researchA')
+        const researchA = await withRetry(() => runResearch('A', roleA.name, topic, apiKey, model))
 
-      // Inject research results into each role's system prompt
-      const promptA = `${roleA.systemPrompt}\n\n## 你對本主題的搜尋研究摘要\n${researchA}`
-      const promptB = `${roleB.systemPrompt}\n\n## 你對本主題的搜尋研究摘要\n${researchB}`
+        setPhase('researchB')
+        const researchB = await withRetry(() => runResearch('B', roleB.name, topic, apiKey, model))
+
+        promptA = `${roleA.systemPrompt}\n\n## 你對本主題的搜尋研究摘要\n${researchA}`
+        promptB = `${roleB.systemPrompt}\n\n## 你對本主題的搜尋研究摘要\n${researchB}`
+      }
 
       for (let round = 0; round < rounds; round++) {
         setPhase('runningA')
