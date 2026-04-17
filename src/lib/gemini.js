@@ -79,6 +79,14 @@ export async function* streamDebateTurn(apiKey, { systemPrompt, topic, history, 
   }
 }
 
+function buildReviewMessage(topic, history) {
+  let msg = `討論情境：${topic}\n\n以下是完整的論辯紀錄：\n\n`
+  for (const entry of history) {
+    msg += `【${entry.name}】\n${entry.content}\n\n`
+  }
+  return msg
+}
+
 /**
  * Non-streaming call for synthesis and Marp generation.
  * @param {string} apiKey
@@ -87,7 +95,7 @@ export async function* streamDebateTurn(apiKey, { systemPrompt, topic, history, 
  */
 export async function generateContent(apiKey, { systemPrompt, topic, history, model }) {
   const ai = new GoogleGenAI({ apiKey })
-  const userMessage = buildContextMessage(topic, history)
+  const userMessage = buildReviewMessage(topic, history)
 
   const response = await ai.models.generateContent({
     model,
