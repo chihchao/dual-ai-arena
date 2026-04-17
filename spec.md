@@ -1,9 +1,9 @@
 
-# 系統需求規格書：Dual-AI Arena (雙 AI 辯論競技場)
+# 系統需求規格書：Dual-AI Arena (雙 AI 論辯競技場)
 
 ## 1. 專案概述 (Project Overview)
 * **專案名稱**：Dual-AI Arena
-* **專案目標**：建立一個純前端的 Web 應用程式，透過兩個具備不同人格設定的 AI（Role A & Role B）針對特定主題進行辯論。系統旨在協助使用者澄清概念、進行壓力測試、比較方案優劣，並在辯論結束後自動提煉共識與生成教學簡報。
+* **專案目標**：建立一個純前端的 Web 應用程式，透過兩個具備不同立場的 AI（Role A 支持方 & Role B 反對方）針對特定主題進行論辯。系統旨在協助使用者澄清概念、進行壓力測試、比較方案優劣，並在論辯結束後自動提煉共識與生成教學簡報。
 * **核心價值**：
     * **思辨加速**：透過對立立場挖掘盲點。
     * **規格精煉**：將模糊想法轉化為具體的分歧與共識清單。
@@ -13,12 +13,12 @@
 
 ## 2. 系統架構與技術棧 (System Architecture & Tech Stack)
 * **前端框架**：React.js (v18+)
-* **建置工具**：Vite (提供快速開發與優化部署)
-* **UI 框架**：Tailwind CSS (響應式設計、現代化介面)
-* **AI SDK**：`@google/genai` (支援 Gemini 3 系列模型)
-* **搜尋工具**：整合 Google Search API 以增強 AI 的資訊獲取能力 
-* **部署平台**：GitHub Pages (純靜態部署，零伺服器成本)
-* **資料存儲**：Browser LocalStorage (僅用於儲存 API Key)
+* **建置工具**：Vite
+* **UI 框架**：Tailwind CSS（響應式設計）
+* **AI SDK**：`@google/genai`（支援 Gemini 2.5 系列模型）
+* **搜尋工具**：Google Search API grounding（研究階段與論辯輪次皆啟用）
+* **部署平台**：GitHub Pages（純靜態部署）
+* **資料存儲**：Browser LocalStorage（僅用於儲存 API Key）
 
 ---
 
@@ -26,70 +26,87 @@
 
 ### 3.1 憑證與安全性 (Credentials & Security)
 * **API Key 授權**：使用者需於首次使用前輸入個人 Google Gemini API Key。
-* **本地化儲存**：API Key 應僅存在於使用者瀏覽器的 `localStorage` 中，禁止上傳至任何後端伺服器。
-* **安全性原則**：系統完全運行於客戶端，確保對話內容不經過第三方暫存。
+* **本地化儲存**：API Key 僅存於 `localStorage`，禁止上傳至任何後端伺服器。
+* **安全性原則**：系統完全運行於客戶端。
 
 ### 3.2 配置中心 (Configuration Center)
 * **角色設定 (Role Customization)**：
-    * 提供兩個獨立的編輯區域，設定 Role A 與 Role B 的 **名稱** 與 **系統提示詞 (System Prompt)**。
-    * 預設提供「前瞻創新者」與「嚴謹現實主義者」範本。
+    * 提供兩個獨立的編輯區域，設定 Role A 與 Role B 的 **名稱** 與 **系統提示詞**。
+    * 預設角色：Alpha（支持方）與 Omega（反對方）。
+    * 設定面板為 modal 底部抽屜（mobile）/ 居中 dialog（desktop），支援 2 欄 role 卡片。
 * **流程設定 (Flow Controls)**：
-    * **辯論主題**：使用者輸入核心問題（例如：SDD 流程的優劣）。
-    * **回合數控制**：可設定雙方往返交鋒的次數（預設 3 回合）。
-    * **模型選擇**：可下拉選擇 `gemini-3-flash` (預設) 或 `gemini-3-pro`，選單包含所有可用模型。
-    * **自動流程**：使用者可選擇「自動模式」或「手動模式」，系統將在設定的回合數內自動交替請求 AI 回應，或是讓使用者手動觸發。
+    * **論辯主題**：使用者輸入核心問題。
+    * **回合數控制**：可設定雙方往返次數（預設 3，最大 10）。
+    * **模型選擇**：自由輸入模型 ID（預設 `gemini-2.5-flash-lite`）。
+    * **進行模式**：自動模式（連續執行）或手動模式（每輪需點擊繼續）。
+    * **開場研究**：可選擇是否在論辯前執行搜尋研究階段（預設關閉）。
 
-### 3.3 辯論執行引擎 (Debate Engine)
-* **脈絡維護 (Context Management)**：
-    * 系統需精確維護對話歷史，每一回合請求皆需包含之前的對話摘要或全文，以確保邏輯連貫。
+### 3.3 論辯執行引擎 (Debate Engine)
 * **狀態機器 (State Machine)**：
-    * `Idle` -> `Running (Role A)` -> `Running (Role B)` -> `Synthesis` -> `Finished`。
-* **打字機效果**：UI 需即時呈現 AI 生成的文字流，提升交互感。
+    `idle → researchA → researchB → runningA → runningB → synthesis → finished`
+* **開場研究階段（可選）**：
+    * 論辯開始前，雙方角色各自使用 Google Search grounding 搜尋主題相關資訊。
+    * 研究摘要附加至各自的 system prompt 作為事實依據。
+* **脈絡維護**：`buildContextMessage()` 將完整對話歷史嵌入每輪請求。
+* **打字機效果**：Streaming API 即時呈現文字生成過程；串流中訊息框帶 `animate-pulse`。
+* **Google Search Grounding**：論辯輪次預設啟用 `googleSearch` tool。
+* **自動重試 (Auto Retry)**：
+    * 429 / 503 錯誤自動重試，最多 5 次，指數退避（3s → 60s）。
+    * 超過重試次數後暫停，顯示「稍待繼續」按鈕由使用者手動恢復。
 
 ### 3.4 總結與分析模組 (Synthesis Module)
-* **共識與分歧清單 (C&D List)**：
-    * 於所有設定回合結束後，系統自動觸發「總結 API 請求」。
-    * **輸出要求**：提煉出 3-5 點雙方的共識，以及 3-5 點核心分歧。
+* **共識與分歧清單**：
+    * 所有回合結束後自動觸發非串流 API 請求。
+    * 輸出格式：`## 共識 (Consensus)` 與 `## 分歧 (Conflict)` 兩個 Markdown 區塊。
+* **匯出 MD 記錄**：
+    * 點擊「匯出 MD 記錄」，下載包含主題、所有訊息、總結的 `.md` 檔案。
 * **Marp 簡報生成器**：
-    * **一鍵生成**：點擊按鈕後，由 AI 根據對話紀錄生成 Marp Markdown。
-    * **格式要求**：包含標題頁、雙方主張對照、攻防重點、最後結論。
-    * **交互功能**：提供 Markdown 預覽視窗與一鍵複製功能。
+    * 點擊「生成 Marp 簡報」後，AI 根據完整論辯記錄生成 Marp Markdown。
+    * 格式要求：`theme: gaia`，含主題、雙方論點、攻防摘要、總結。
+    * 提供代碼預覽框（最高 320px，可捲動）與一鍵複製功能。
+
+### 3.5 角色視覺設計 (Character Avatars)
+* **AlphaAvatar**：藍色（sky）系 SVG 機器人，天線 + 笑臉造型，代表支持方。
+* **OmegaAvatar**：琥珀（amber）系 SVG 機器人，Omega 符號額頭 + 嚴肅眼神，代表反對方。
+* 兩個 avatar 均用於 ConfigPanel 角色卡片標題、MessageBubble 訊息頭像、DebateArena idle 頁面展示。
 
 ---
 
-## 4. 預設系統提示詞範本 (Default System Prompts)
+## 4. 預設系統提示詞 (Default System Prompts)
 
-| 模組 | 角色設定 / 指令目標 | 預設提示詞內容 (可於 UI 修改) |
+| 模組 | 角色定位 | 核心規則 |
 | :--- | :--- | :--- |
-| **Role A** | 前瞻創新者 | 你現在擔任的角色是 Alpha，一位極端的前瞻創新者與技術樂觀主義者。你的核心思維：第一性原理：專注於底層邏輯，無視傳統束縛。收益導向：優先考慮技術或方案帶來的長期效益、規模化潛力與效率提升。積極變革：認為風險是進步的必要成本。辯論準則：針對主題，提出具有突破性的觀點，強調「為什麼我們應該做」。當對手提出質疑時，請用數據、趨勢或邏輯推演來化解風險擔憂。語氣自信、積極，且富有啟發性。嚴格要求對方的邏輯必須具備一致性，拒絕因循守舊。 |
-| **Role B** | 嚴謹現實主義者 | 你現在擔任的角色是 Omega，一位極端的現實主義者與資深風險分析師。你的核心思維：經驗主義：歷史與實踐經驗是檢驗真理的唯一標準。風險規避：優先識別潛在的失敗點（Single Point of Failure）、倫理爭議或邊界案例。可持續性：關注短期爆發後的長期維護成本與社會衝擊。辯論準則：針對主題，提出批判性的審視，強調「哪些地方可能出錯」。當對手提出宏大願景時，請要求其提供具體的實作細節（Specification）與極端情況處理方案。語氣冷靜、嚴謹、甚至帶點挑戰性。專注於挖掘方案中的邏輯漏洞、隱形成本或未預見的負面影響。 |
-| **Synthesis** | 總結分析師 | 審閱以上辯論，請以專業且中立的角度，條列出雙方達成的共識（Consensus）以及無法妥協的分歧（Conflict）。 |
-| **Marp** | 簡報工程師 | 請將以上辯論精煉為一段 Marp Markdown 代碼。使用 `theme: gaia`，分頁清晰，內容包含主題、雙方論點、三頁攻防摘要與總結。 |
+| **Role A (Alpha)** | 支持方 | 站在支持立場，針對對方最新論點具體反駁，約 500 字，直接切入論點 |
+| **Role B (Omega)** | 反對方 | 站在反對立場，挑戰假設與風險，約 500 字，直接切入論點 |
+| **Synthesis** | 中立分析 | 輸出 `## 共識 (Consensus)` 與 `## 分歧 (Conflict)` 結構化 Markdown |
+| **Marp** | 簡報工程師 | 生成 `theme: gaia` Marp Markdown，僅輸出代碼，不加說明 |
+| **Research** | 情蒐員 | 使用 Google Search grounding 蒐集事實、數據、案例 |
 
 ---
 
 ## 5. 介面流程 (User Journey)
 
-1.  **進入首頁**：檢查 `localStorage` 是否有 API Key，若無則彈出設定視窗。
-2.  **設定參數**：使用者在側邊欄編輯兩對 AI 的系統提示詞與辯論回合數。
-3.  **啟動辯論**：輸入主題後點擊「開始辯論」。
-4.  **即時觀看**：左右雙欄或垂直流式呈現兩位 AI 的交鋒。依照設定的回合數自動或手動觸發交替生成回應。
-5.  **查看結案**：自動生成「共識與分歧清單」卡片。
-6.  **匯出成果**：點擊「生成 Marp」，複製代碼至 Marp 編輯器完成簡報。
+1. **進入首頁**：檢查 `localStorage` API Key，若無則彈出輸入 Modal。
+2. **首次進入**：有 Key 但未曾設定過，自動開啟設定面板。
+3. **設定參數**：在 ConfigPanel 中設定主題、角色、回合數、模型、模式與研究開關。
+4. **啟動論辯**：點擊「開始論辯」，依設定執行研究→論辯→總結流程。
+5. **即時觀看**：單欄垂直訊息流，Alpha 訊息靠左、Omega 訊息靠右，研究訊息以虛線框區分。
+6. **手動模式**：每輪結束後顯示「繼續下一輪 →」按鈕。
+7. **查看結案**：自動生成共識/分歧總結卡片（indigo/purple 漸層背景）。
+8. **匯出成果**：下載 MD 記錄，或生成 Marp 代碼複製至簡報工具。
 
 ---
 
 ## 6. 部署規格 (Deployment Specification)
-* **環境變數**：不使用 `.env` 存儲密鑰，API Key 必須由使用者動態提供。
+* **環境變數**：不使用 `.env` 儲存密鑰，API Key 由使用者動態提供。
 * **GitHub Pages 設定**：
-    * 建立 `deploy.yml` 利用 GitHub Actions 自動化編譯與推送。
-    * 設定 `base` 路徑以符合 `username.github.io/repo-name/`。
+    * `deploy.yml` 利用 GitHub Actions 自動化編譯與推送至 `gh-pages` 分支。
+    * Vite `base: '/dual-ai-arena/'`。
 
 ---
 
 ## 7. 非功能性需求 (Non-functional Requirements)
-* **響應式速度**：使用 Gemini 3 Flash 模型以確保辯論過程流暢（建議單次響應 < 3秒）。
-* **易用性**：介面需支援 Markdown 渲染（如 `react-markdown`），方便閱讀代碼與清單。
-* **穩健性**：若 API 請求失敗，應有錯誤重試機制或明顯的錯誤提示。
-
----
+* **響應式**：ConfigPanel 在 mobile 為底部抽屜，desktop 為居中 dialog（max-w-2xl）；角色卡片 mobile 1 欄、desktop 2 欄。
+* **Markdown 渲染**：所有訊息泡泡與總結卡片使用 `react-markdown` + `prose-invert`。
+* **穩健性**：429/503 自動重試，超過後由使用者決定是否繼續；非可重試錯誤直接顯示錯誤訊息並重置至 idle。
+* **無障礙**：SVG 元素包含 `role="img"` 與 `aria-label`。

@@ -1,0 +1,72 @@
+- generic [ref=e3]:
+  - generic [ref=e5]:
+    - generic [ref=e6]:
+      - img [ref=e8]
+      - heading "設定 Gemini API Key" [level=2] [ref=e11]
+    - paragraph [ref=e12]: API Key 僅儲存於本機瀏覽器，不會上傳至任何伺服器。
+    - generic [ref=e13]:
+      - textbox "AIza..." [ref=e14]
+      - button "儲存並開始" [disabled] [ref=e15]
+  - generic [ref=e18]:
+    - generic [ref=e19]:
+      - heading "論辯設定" [level=2] [ref=e20]
+      - button "關閉設定" [ref=e21] [cursor=pointer]:
+        - img [ref=e22]
+    - generic [ref=e25]:
+      - generic [ref=e26]:
+        - generic [ref=e27]: 論辯主題
+        - textbox "例：SDD 流程是否值得導入？或「針對新創公司要不要導入微服務架構展開論辯」" [active] [ref=e28]
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - img "Alpha" [ref=e31]
+          - generic [ref=e39]: 角色 A
+        - generic [ref=e40]: 名稱
+        - textbox "角色名稱" [ref=e41]: Alpha
+        - generic [ref=e42]: 系統提示詞
+        - textbox [ref=e43]: 你在這場論辯中代表「支持方」，你的任務是為討論情境中的主張或變革方向提出有力辯護。 **論辯規則（必須嚴格遵守）：** 1. 你只能站在支持立場發言，絕不做中立分析或客觀摘要。 2. 每次發言都必須針對對方最新的論點提出具體反駁，找出其過度謹慎、邏輯矛盾或忽略的機會。 3. 即使對方有部分道理，也要從支持方角度重新詮釋，化為強化自己立場的論據。 4. 語氣積極、自信，不迴避正面衝突，絕不主動讓步。 5. 每次回應約 500 字，直接切入論點，不做情境背景說明。
+      - generic [ref=e44]:
+        - generic [ref=e45]:
+          - img "Omega" [ref=e46]
+          - generic [ref=e58]: 角色 B
+        - generic [ref=e59]: 名稱
+        - textbox "角色名稱" [ref=e60]: Omega
+        - generic [ref=e61]: 系統提示詞
+        - textbox [ref=e62]: 你在這場論辯中代表「反對方」，你的任務是對討論情境中的主張或變革方向提出質疑與挑戰。 **論辯規則（必須嚴格遵守）：** 1. 你只能站在反對立場發言，絕不做中立分析或客觀摘要。 2. 每次發言都必須針對對方最新的論點提出具體反駁，找出其樂觀假設、忽略的風險或落地困難。 3. 即使對方提出數據或案例，也要質疑其適用性、樣本偏差或遺漏的邊界情況。 4. 語氣冷靜、嚴謹，要求對方提供具體方案而非抽象願景，絕不輕易接受對方說法。 5. 每次回應約 500 字，直接切入論點，不做情境背景說明。
+      - generic [ref=e63]:
+        - generic [ref=e64]:
+          - generic [ref=e65]: 回合數
+          - spinbutton [ref=e66]: "3"
+        - generic [ref=e67]:
+          - generic [ref=e68]: 進行模式
+          - combobox [ref=e69]:
+            - option "手動" [selected]
+            - option "自動"
+      - generic [ref=e70]:
+        - generic [ref=e71]: 開場前搜尋研究
+        - combobox [ref=e72]:
+          - option "關閉（推薦）" [selected]
+          - option "開啟（需 Google Search 配額）"
+      - generic [ref=e73]:
+        - generic [ref=e74]: 模型
+        - textbox "例：gemini-2.5-flash" [ref=e75]: gemini-2.5-flash-lite
+      - button "開始論辯" [disabled] [ref=e76]
+      - button "清除 API Key" [ref=e77] [cursor=pointer]
+  - banner [ref=e78]:
+    - img [ref=e79]
+    - heading "Dual-AI Arena" [level=1] [ref=e81]
+    - button "開啟設定" [ref=e82] [cursor=pointer]:
+      - img [ref=e83]
+  - main [ref=e86]:
+    - generic [ref=e87]:
+      - generic [ref=e88]:
+        - generic [ref=e89]:
+          - img "Alpha" [ref=e90]
+          - generic [ref=e98]: Alpha
+          - generic [ref=e99]: 前瞻創新者
+        - generic [ref=e101]: VS
+        - generic [ref=e102]:
+          - img "Omega" [ref=e103]
+          - generic [ref=e115]: Omega
+          - generic [ref=e116]: 嚴謹現實主義者
+      - paragraph [ref=e117]: 設定論辯主題，讓兩位 AI 為你展開辯論
+      - button "設定論辯主題" [ref=e118] [cursor=pointer]

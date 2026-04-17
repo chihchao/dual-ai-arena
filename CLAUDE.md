@@ -10,10 +10,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Framework**: React 18+ with Vite
 - **Styling**: Tailwind CSS
-- **AI SDK**: `@google/genai` (Gemini models)
+- **AI SDK**: `@google/genai` (Gemini 2.5 series models)
 - **Deployment**: GitHub Pages via GitHub Actions
 - **Storage**: Browser `localStorage` (API key only)
-- **Search**: Google Search API (grounding — enhances AI responses with real-time web data)
+- **Search**: Google Search API grounding (used in both research phase and debate turns)
 
 ## Development Commands
 
@@ -24,48 +24,64 @@ npm run build        # Production build
 npm run preview      # Preview production build locally
 ```
 
-Vite must be configured with `base: '/dual-ai-arena/'` (or the actual repo name) for GitHub Pages to work correctly.
+Vite must be configured with `base: '/dual-ai-arena/'` for GitHub Pages.
 
 ## Architecture
 
 ### State Machine
-The debate flows through these states: `Idle → Running (Role A) → Running (Role B) → Synthesis → Finished`
+`idle → researchA → researchB → runningA → runningB → synthesis → finished`
 
-Each AI turn streams tokens to the UI (typewriter effect). After all rounds complete, a Synthesis API call auto-triggers to produce consensus/conflict lists.
+Research phases are optional (controlled by `useResearch` flag). Each debate turn streams tokens to the UI. Synthesis is non-streaming.
 
 ### Context Management
-Every API call must pass the **full conversation history** so each AI has context of what the other said. Use the `contents` array format from `@google/genai`.
+`buildContextMessage()` in `src/lib/gemini.js` constructs the user message for each turn, embedding the full conversation history from `historyRef` so each AI has context of all prior messages.
 
-### Key Components to Build
+### Retry Logic
+`withRetry()` in `useDebateEngine` auto-retries up to 5 times with exponential backoff (starting at 3s, max 60s) for 429/503 errors. After exhausting retries it pauses and shows a "稍待繼續" button for the user.
 
-- **API Key Gate**: On load, check `localStorage` for key; show modal if missing.
-- **Config Panel (sidebar)**: Editable system prompts for Role A & B, round count (default 3), model selector (`gemini-2.5-flash` default, `gemini-2.5-pro` option), auto/manual mode toggle.
-- **Debate Arena**: Dual-column or vertical stream showing alternating AI messages with typewriter streaming.
-- **Synthesis Card**: Auto-generated after final round — 3–5 consensus points, 3–5 conflict points.
-- **Marp Exporter**: Button triggers AI to generate Marp Markdown (`theme: gaia`); show preview + copy button.
+### Key Files
 
-### Default System Prompts
+| File | Responsibility |
+|------|---------------|
+| `src/App.jsx` | Root — API key gate, settings open/close, `isRunning` guard |
+| `src/hooks/useDebateEngine.js` | Core state machine, retry logic, streaming orchestration |
+| `src/lib/gemini.js` | `streamDebateTurn`, `streamResearchTurn`, `generateContent`, `buildContextMessage` |
+| `src/lib/prompts.js` | Default system prompts for Role A/B, synthesis, Marp, research |
+| `src/lib/storage.js` | `getApiKey` / `clearApiKey` (localStorage) |
+| `src/constants.js` | `MODELS`, `DEFAULT_MODEL`, `DEFAULT_ROUNDS`, `DEFAULT_AUTO_MODE`, `DEFAULT_USE_RESEARCH` |
+| `src/components/ConfigPanel.jsx` | Settings modal (roles, topic, rounds, model, mode, research toggle) |
+| `src/components/DebateArena.jsx` | Message stream, synthesis card, Marp generation, MD export |
+| `src/components/MessageBubble.jsx` | Single message — supports `type: 'research'` variant with search icon badge |
+| `src/components/CharacterAvatar.jsx` | SVG avatars — `AlphaAvatar` (blue/sky) and `OmegaAvatar` (amber) |
+| `src/components/ApiKeyModal.jsx` | API key entry modal |
 
-**Role A (Alpha — 前瞻創新者)**:
-```
-你現在擔任的角色是 Alpha，一位極端的前瞻創新者與技術樂觀主義者。你的核心思維：第一性原理：專注於底層邏輯，無視傳統束縛。收益導向：優先考慮技術或方案帶來的長期效益、規模化潛力與效率提升。積極變革：認為風險是進步的必要成本。辯論準則：針對主題，提出具有突破性的觀點，強調「為什麼我們應該做」。當對手提出質疑時，請用數據、趨勢或邏輯推演來化解風險擔憂。語氣自信、積極，且富有啟發性。嚴格要求對方的邏輯必須具備一致性，拒絕因循守舊。
-```
+> `SynthesisCard.jsx` and `MarpExporter.jsx` exist as files but synthesis/Marp UI is currently inline in `DebateArena.jsx`.
 
-**Role B (Omega — 嚴謹現實主義者)**:
-```
-你現在擔任的角色是 Omega，一位極端的現實主義者與資深風險分析師。你的核心思維：經驗主義：歷史與實踐經驗是檢驗真理的唯一標準。風險規避：優先識別潛在的失敗點（Single Point of Failure）、倫理爭議或邊界案例。可持續性：關注短期爆發後的長期維護成本與社會衝擊。辯論準則：針對主題，提出批判性的審視，強調「哪些地方可能出錯」。當對手提出宏大願景時，請要求其提供具體的實作細節（Specification）與極端情況處理方案。語氣冷靜、嚴謹、甚至帶點挑戰性。專注於挖掘方案中的邏輯漏洞、隱形成本或未預見的負面影響。
-```
+### Available Models (`src/constants.js`)
+- `gemini-2.5-flash-lite` — default
+- `gemini-2.5-flash`
+- `gemini-2.5-pro`
 
-**Synthesis prompt**: `審閱以上辯論，請以專業且中立的角度，條列出雙方達成的共識（Consensus）以及無法妥協的分歧（Conflict）。`
+Model field in ConfigPanel is a free-text input (not a dropdown) to allow using any model ID.
 
-**Marp prompt**: `請將以上辯論精煉為一段 Marp Markdown 代碼。使用 theme: gaia，分頁清晰，內容包含主題、雙方論點、三頁攻防摘要與總結。`
+### Default System Prompts (`src/lib/prompts.js`)
+
+**Role A (Alpha — 支持方)**: Argue in favor of the topic; rebut opponent's latest point; ~500 words per turn.
+
+**Role B (Omega — 反對方)**: Argue against the topic; challenge assumptions and risks; ~500 words per turn.
+
+**Synthesis**: Output structured Markdown with `## 共識 (Consensus)` and `## 分歧 (Conflict)` sections.
+
+**Marp**: Generate Marp Markdown with `theme: gaia`; output code only, no explanations.
+
+**Research**: Use Google Search grounding to gather facts, data, and examples before the debate.
 
 ## Deployment
 
-GitHub Actions workflow (`deploy.yml`) should build and push to `gh-pages` branch. Vite `base` config must match the repo URL path segment.
+GitHub Actions workflow (`deploy.yml`) builds and pushes to `gh-pages` branch. Vite `base` must match `/dual-ai-arena/`.
 
 ## Non-functional Requirements
 
-- Markdown rendering required in debate messages (use `react-markdown`)
-- API errors must show clear user-facing messages; consider a retry mechanism
-- API key never leaves the browser (no fetch to any backend)
+- Markdown rendering via `react-markdown` in all message bubbles and synthesis
+- API errors show in-UI messages; retryable errors (429/503) auto-retry before prompting user
+- API key never leaves the browser

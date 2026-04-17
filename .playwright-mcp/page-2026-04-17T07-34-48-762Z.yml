@@ -1,0 +1,27 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - img [ref=e5]
+    - heading "Dual-AI Arena" [level=1] [ref=e7]
+    - button "開啟設定" [ref=e8] [cursor=pointer]:
+      - img [ref=e9]
+  - main [ref=e12]:
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - img "Alpha" [ref=e17]
+          - generic [ref=e25]: Alpha
+          - generic [ref=e26]: 前瞻創新者
+        - generic [ref=e28]: VS
+        - generic [ref=e29]:
+          - img "Omega" [ref=e31]
+          - generic [ref=e43]: Omega
+          - generic [ref=e44]: 嚴謹現實主義者
+      - generic [ref=e45]:
+        - paragraph [ref=e46]:
+          - text: 第一性原理 · 技術樂觀
+          - text: 突破性創新
+        - paragraph [ref=e48]:
+          - text: 經驗主義 · 風險規避
+          - text: 嚴謹分析
+      - paragraph [ref=e49]: 設定論辯主題，讓兩位 AI 為你展開辯論
+      - button "設定論辯主題" [ref=e50] [cursor=pointer]
