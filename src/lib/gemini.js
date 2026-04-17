@@ -14,11 +14,11 @@ export function isRetryable(err) {
  * @returns {string}
  */
 export function buildContextMessage(topic, history) {
-  let msg = `辯論主題：${topic}\n\n`
+  let msg = `討論情境：${topic}\n\n`
   if (history.length === 0) {
     msg += '請開始你的論述。'
   } else {
-    msg += '以下是目前的辯論紀錄：\n\n'
+    msg += '以下是目前的論辯紀錄：\n\n'
     for (const entry of history) {
       msg += `【${entry.name}】\n${entry.content}\n\n`
     }
@@ -35,7 +35,7 @@ export function buildContextMessage(topic, history) {
  */
 export async function* streamResearchTurn(apiKey, { systemPrompt, topic, model }) {
   const ai = new GoogleGenAI({ apiKey })
-  const prompt = `辯論主題：${topic}\n\n請使用搜尋工具查詢此主題的相關最新資訊，並整理出重要的事實、數據、案例與各方觀點，作為你辯論論點的事實依據。`
+  const prompt = `討論情境：${topic}\n\n請使用搜尋工具查詢此情境相關的最新資訊，並整理出重要的事實、數據、案例與各方觀點，作為你後續論辯的事實依據。`
 
   const response = await ai.models.generateContentStream({
     model,

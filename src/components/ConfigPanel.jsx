@@ -55,10 +55,10 @@ export function ConfigPanel({ onStart, onClearKey, disabled }) {
       {/* Flow controls */}
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">辯論主題</label>
+          <label className="block text-xs font-semibold text-gray-600 mb-1">討論情境 / 主題</label>
           <textarea
             className="w-full border rounded px-2 py-1 text-sm h-16 resize-none"
-            placeholder="例：SDD 流程是否值得導入？"
+            placeholder="例：SDD 流程是否值得導入？也可描述情境，如「雙方針對新創公司要不要導入微服務架構展開論辯」"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
           />
@@ -102,7 +102,7 @@ export function ConfigPanel({ onStart, onClearKey, disabled }) {
           disabled={disabled || !topic.trim()}
           className="bg-indigo-600 text-white rounded-lg py-2 font-semibold disabled:opacity-40 hover:bg-indigo-700 transition"
         >
-          {disabled ? '辯論中...' : '開始辯論'}
+          {disabled ? '論辯中...' : '開始論辯'}
         </button>
       </form>
 
