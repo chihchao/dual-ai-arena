@@ -16,13 +16,13 @@ export function isRetryable(err) {
 export function buildContextMessage(topic, history) {
   let msg = `討論情境：${topic}\n\n`
   if (history.length === 0) {
-    msg += '請開始你的論述。'
+    msg += '請針對此情境，直接提出你的核心立場與第一個論點。約 500 字，不做背景說明，直接陳述你的觀點。'
   } else {
     msg += '以下是目前的論辯紀錄：\n\n'
     for (const entry of history) {
       msg += `【${entry.name}】\n${entry.content}\n\n`
     }
-    msg += '請針對對方的論點繼續你的回應。'
+    msg += '請從你的立場出發，針對對方剛才的論點提出明確反駁，並強化你自己的主張。約 500 字，直接切入反駁，不做摘要或總結。'
   }
   return msg
 }
