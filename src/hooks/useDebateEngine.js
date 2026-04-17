@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef } from 'react'
-import { streamDebateTurn, generateContent, isRetryable } from '../lib/gemini'
-import { SYNTHESIS_PROMPT } from '../lib/prompts'
+import { streamDebateTurn, streamResearchTurn, generateContent, isRetryable } from '../lib/gemini'
+import { SYNTHESIS_PROMPT, RESEARCH_PROMPT } from '../lib/prompts'
 
 const MAX_AUTO_RETRIES = 5
 
@@ -54,6 +54,36 @@ export function useDebateEngine() {
     }
   }, [waitForUser])
 
+  const runResearch = useCallback(async (role, name, topic, apiKey, model) => {
+    let accumulated = ''
+    const msgId = crypto.randomUUID()
+    setMessages((prev) => [
+      ...prev,
+      { role, name, content: '', id: msgId, type: 'research', streaming: true },
+    ])
+
+    try {
+      for await (const chunk of streamResearchTurn(apiKey, {
+        systemPrompt: RESEARCH_PROMPT,
+        topic,
+        model,
+      })) {
+        accumulated += chunk
+        setMessages((prev) =>
+          prev.map((m) => (m.id === msgId ? { ...m, content: accumulated } : m))
+        )
+      }
+    } catch (err) {
+      setMessages((prev) => prev.filter((m) => m.id !== msgId))
+      throw err
+    }
+
+    setMessages((prev) =>
+      prev.map((m) => (m.id === msgId ? { ...m, streaming: false } : m))
+    )
+    return accumulated
+  }, [])
+
   const runTurn = useCallback(async (role, name, systemPrompt, topic, apiKey, model) => {
     let accumulated = ''
     const msgId = crypto.randomUUID()
@@ -93,14 +123,25 @@ export function useDebateEngine() {
     historyRef.current = []
 
     try {
+      // Pre-debate research phase
+      setPhase('researchA')
+      const researchA = await withRetry(() => runResearch('A', roleA.name, topic, apiKey, model))
+
+      setPhase('researchB')
+      const researchB = await withRetry(() => runResearch('B', roleB.name, topic, apiKey, model))
+
+      // Inject research results into each role's system prompt
+      const promptA = `${roleA.systemPrompt}\n\n## 你對本主題的搜尋研究摘要\n${researchA}`
+      const promptB = `${roleB.systemPrompt}\n\n## 你對本主題的搜尋研究摘要\n${researchB}`
+
       for (let round = 0; round < rounds; round++) {
         setPhase('runningA')
-        await withRetry(() => runTurn('A', roleA.name, roleA.systemPrompt, topic, apiKey, model))
+        await withRetry(() => runTurn('A', roleA.name, promptA, topic, apiKey, model))
 
         if (!autoMode) await waitForUser('manual')
 
         setPhase('runningB')
-        await withRetry(() => runTurn('B', roleB.name, roleB.systemPrompt, topic, apiKey, model))
+        await withRetry(() => runTurn('B', roleB.name, promptB, topic, apiKey, model))
 
         if (!autoMode && round < rounds - 1) await waitForUser('manual')
       }

@@ -28,6 +28,31 @@ export function buildContextMessage(topic, history) {
 }
 
 /**
+ * Streams a pre-debate research turn for a role, using Google Search grounding.
+ * @param {string} apiKey
+ * @param {{ systemPrompt: string, topic: string, model: string }} opts
+ * @yields {string} text chunks
+ */
+export async function* streamResearchTurn(apiKey, { systemPrompt, topic, model }) {
+  const ai = new GoogleGenAI({ apiKey })
+  const prompt = `辯論主題：${topic}\n\n請使用搜尋工具查詢此主題的相關最新資訊，並整理出重要的事實、數據、案例與各方觀點，作為你辯論論點的事實依據。`
+
+  const response = await ai.models.generateContentStream({
+    model,
+    config: {
+      systemInstruction: systemPrompt,
+      tools: [{ googleSearch: {} }],
+    },
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+  })
+
+  for await (const chunk of response) {
+    const text = chunk.text
+    if (text) yield text
+  }
+}
+
+/**
  * Streams a single debate turn from the Gemini API.
  * @param {string} apiKey
  * @param {{ systemPrompt: string, topic: string, history: Array, model: string, useSearch?: boolean }} opts

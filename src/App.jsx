@@ -4,7 +4,6 @@ import { useDebateEngine } from './hooks/useDebateEngine'
 import { ApiKeyModal } from './components/ApiKeyModal'
 import { ConfigPanel } from './components/ConfigPanel'
 import { DebateArena } from './components/DebateArena'
-import { MarpExporter } from './components/MarpExporter'
 import { DEFAULT_MODEL } from './constants'
 
 export default function App() {
@@ -27,7 +26,7 @@ export default function App() {
     reset()
   }
 
-  const isRunning = phase === 'runningA' || phase === 'runningB' || phase === 'synthesis'
+  const isRunning = ['researchA', 'researchB', 'runningA', 'runningB', 'synthesis'].includes(phase)
 
   return (
     <div className="flex h-screen bg-white overflow-hidden">
@@ -48,15 +47,10 @@ export default function App() {
           waitingForContinue={waitingForContinue}
           continueReason={continueReason}
           onContinue={continueDebate}
+          apiKey={apiKey}
+          topic={debateConfigRef.current.topic}
+          model={debateConfigRef.current.model}
         />
-        {phase === 'finished' && (
-          <MarpExporter
-            apiKey={apiKey}
-            topic={debateConfigRef.current.topic}
-            history={messages.map((m) => ({ role: m.role, name: m.name, content: m.content }))}
-            model={debateConfigRef.current.model}
-          />
-        )}
       </main>
     </div>
   )

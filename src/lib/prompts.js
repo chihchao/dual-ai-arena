@@ -15,3 +15,6 @@ export const SYNTHESIS_PROMPT =
 
 export const MARP_PROMPT =
   '請將以上辯論精煉為一段 Marp Markdown 代碼。使用 `theme: gaia`，分頁清晰，內容包含主題、雙方論點、三頁攻防摘要與總結。只輸出 Markdown 代碼，不要加任何說明。'
+
+export const RESEARCH_PROMPT =
+  '你正在準備參與一場辯論。請先使用搜尋工具，針對辯論主題查詢最新的相關資訊、數據、研究案例與各方代表性觀點，整理成簡明的研究摘要。這份摘要將作為你後續辯論論點的事實依據，請盡量引用具體的數字、來源與實例。'
