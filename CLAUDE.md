@@ -34,25 +34,28 @@ Vite must be configured with `base: '/dual-ai-arena/'` for GitHub Pages.
 Research phases are optional (controlled by `useResearch` flag). Each debate turn streams tokens to the UI. Synthesis is non-streaming.
 
 ### Context Management
-`buildContextMessage()` in `src/lib/gemini.js` constructs the user message for each turn, embedding the full conversation history from `historyRef` so each AI has context of all prior messages.
+`buildContextMessage()` in `src/lib/gemini.js` constructs the user message for each debate turn, embedding the full conversation history from `historyRef`. `buildReviewMessage()` is used separately for synthesis and Marp generation (embeds full history for non-streaming review calls).
 
 ### Retry Logic
 `withRetry()` in `useDebateEngine` auto-retries up to 5 times with exponential backoff (starting at 3s, max 60s) for 429/503 errors. After exhausting retries it pauses and shows a "稍待繼續" button for the user.
+
+### First-Visit UX
+`App.jsx` tracks a `VISITED_KEY` in `localStorage`. When a user has an API key but hasn't visited before, the settings panel opens automatically.
 
 ### Key Files
 
 | File | Responsibility |
 |------|---------------|
-| `src/App.jsx` | Root — API key gate, settings open/close, `isRunning` guard |
+| `src/App.jsx` | Root — API key gate, first-visit auto-open settings (`VISITED_KEY`), `isRunning` guard |
 | `src/hooks/useDebateEngine.js` | Core state machine, retry logic, streaming orchestration |
-| `src/lib/gemini.js` | `streamDebateTurn`, `streamResearchTurn`, `generateContent`, `buildContextMessage` |
-| `src/lib/prompts.js` | Default system prompts for Role A/B, synthesis, Marp, research |
+| `src/lib/gemini.js` | `streamDebateTurn`, `streamResearchTurn`, `generateContent`, `generateRoleSuggestions`, `buildContextMessage`, `buildReviewMessage` |
+| `src/lib/prompts.js` | Default system prompts for Role A/B, synthesis, Marp, research, and `ROLE_SUGGESTION_PROMPT` |
 | `src/lib/storage.js` | `getApiKey` / `clearApiKey` (localStorage) |
 | `src/constants.js` | `MODELS`, `DEFAULT_MODEL`, `DEFAULT_ROUNDS`, `DEFAULT_AUTO_MODE`, `DEFAULT_USE_RESEARCH` |
-| `src/components/ConfigPanel.jsx` | Settings modal (roles, topic, rounds, model, mode, research toggle) |
+| `src/components/ConfigPanel.jsx` | Settings modal (roles, topic, rounds, model, mode, research toggle) + AI role suggestion button |
 | `src/components/DebateArena.jsx` | Message stream, synthesis card, Marp generation, MD export |
-| `src/components/MessageBubble.jsx` | Single message — supports `type: 'research'` variant with search icon badge |
-| `src/components/CharacterAvatar.jsx` | SVG avatars — `AlphaAvatar` (blue/sky) and `OmegaAvatar` (amber) |
+| `src/components/MessageBubble.jsx` | Single message — supports `type: 'research'` variant with dashed-border styling |
+| `src/components/CharacterAvatar.jsx` | SVG avatars — `AlphaAvatar` (blue/sky dome) and `OmegaAvatar` (amber dome) |
 | `src/components/ApiKeyModal.jsx` | API key entry modal |
 
 > `SynthesisCard.jsx` and `MarpExporter.jsx` exist as files but synthesis/Marp UI is currently inline in `DebateArena.jsx`.
@@ -75,6 +78,11 @@ Model field in ConfigPanel is a free-text input (not a dropdown) to allow using 
 **Marp**: Generate Marp Markdown with `theme: gaia`; output code only, no explanations.
 
 **Research**: Use Google Search grounding to gather facts, data, and examples before the debate.
+
+**Role Suggestion (`ROLE_SUGGESTION_PROMPT`)**: Given a debate topic, generate JSON with `roleA` and `roleB` (name + systemPrompt), used by the "AI 建議角色提示詞" button in ConfigPanel.
+
+### AI Role Suggestion Feature
+`generateRoleSuggestions(apiKey, { topic, model })` in `src/lib/gemini.js` calls the Gemini API with `ROLE_SUGGESTION_PROMPT` to auto-generate opposing role names and system prompts for a given topic. Returns `{ roleA, roleB }`. ConfigPanel's "AI 建議角色提示詞" button triggers this and populates both role fields.
 
 ## Deployment
 

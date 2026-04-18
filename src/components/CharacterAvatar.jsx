@@ -1,145 +1,107 @@
 export function AlphaAvatar({ className = 'w-10 h-10' }) {
   return (
-    <svg
-      viewBox="0 0 100 100"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      role="img"
-      aria-label="Alpha"
-    >
-      <defs>
-        <radialGradient id="alpha-head" cx="38%" cy="30%" r="65%">
-          <stop offset="0%" stopColor="#1d4ed8" />
-          <stop offset="100%" stopColor="#0a1628" />
-        </radialGradient>
-        <radialGradient id="alpha-iris" cx="30%" cy="30%" r="70%">
-          <stop offset="0%" stopColor="#bae6fd" />
-          <stop offset="40%" stopColor="#38bdf8" />
-          <stop offset="100%" stopColor="#0284c7" />
-        </radialGradient>
-        <radialGradient id="alpha-cheek" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="#38bdf8" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} role="img" aria-label="Alpha">
       {/* Antenna */}
-      <line x1="50" y1="14" x2="50" y2="7" stroke="#7dd3fc" strokeWidth="2.5" strokeLinecap="round" />
-      <circle cx="50" cy="5" r="4" fill="#38bdf8" />
-      <circle cx="49" cy="4" r="1.5" fill="white" opacity="0.7" />
+      <line x1="50" y1="12" x2="50" y2="6" stroke="#1A1A2E" strokeWidth="2.5" strokeLinecap="round" />
+      <circle cx="50" cy="5" r="3.5" fill="#D5CBF5" stroke="#1A1A2E" strokeWidth="2" />
 
-      {/* Head */}
-      <rect x="12" y="13" width="76" height="76" rx="22" fill="url(#alpha-head)" />
-      {/* Head highlight */}
-      <ellipse cx="36" cy="23" rx="16" ry="7" fill="white" opacity="0.08" />
+      {/* Ear left */}
+      <rect x="2" y="38" width="9" height="20" rx="4" fill="#D5CBF5" stroke="#1A1A2E" strokeWidth="2.5" />
+      {/* Ear right */}
+      <rect x="89" y="38" width="9" height="20" rx="4" fill="#D5CBF5" stroke="#1A1A2E" strokeWidth="2.5" />
 
-      {/* Face plate */}
-      <rect x="20" y="28" width="60" height="52" rx="14" fill="#040f1e" opacity="0.65" />
+      {/* Head fill */}
+      <rect x="9" y="11" width="82" height="61" rx="18" fill="#EDE8F8" />
 
-      {/* Eyebrows — raised/cheerful */}
-      <path d="M26 40 Q36 34 46 38" stroke="#38bdf8" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-      <path d="M54 38 Q64 34 74 40" stroke="#38bdf8" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      {/* Face dome */}
+      <path d="M 19,72 Q 19,24 50,24 Q 81,24 81,72 Z" fill="#89C4F0" stroke="#1A1A2E" strokeWidth="2.5" />
+      {/* Dome gloss */}
+      <ellipse cx="64" cy="34" rx="13" ry="8" fill="white" opacity="0.28" transform="rotate(-22 64 34)" />
 
       {/* Left eye */}
-      <circle cx="37" cy="52" r="12" fill="white" />
-      <circle cx="37" cy="52" r="10" fill="url(#alpha-iris)" />
-      <circle cx="37" cy="52" r="6" fill="#01356b" />
-      <circle cx="37" cy="52" r="4" fill="#000d20" />
-      <circle cx="34" cy="49" r="2.5" fill="white" />
-      <circle cx="40" cy="54" r="1" fill="white" opacity="0.5" />
+      <circle cx="35" cy="50" r="10" fill="white" stroke="#1A1A2E" strokeWidth="2.5" />
+      <circle cx="35" cy="50" r="5" fill="#1A1A2E" />
+      <circle cx="32" cy="47" r="2" fill="white" />
 
       {/* Right eye */}
-      <circle cx="63" cy="52" r="12" fill="white" />
-      <circle cx="63" cy="52" r="10" fill="url(#alpha-iris)" />
-      <circle cx="63" cy="52" r="6" fill="#01356b" />
-      <circle cx="63" cy="52" r="4" fill="#000d20" />
-      <circle cx="60" cy="49" r="2.5" fill="white" />
-      <circle cx="66" cy="54" r="1" fill="white" opacity="0.5" />
+      <circle cx="65" cy="50" r="10" fill="white" stroke="#1A1A2E" strokeWidth="2.5" />
+      <circle cx="65" cy="50" r="5" fill="#1A1A2E" />
+      <circle cx="62" cy="47" r="2" fill="white" />
+
+      {/* Cheek blush */}
+      <ellipse cx="26" cy="62" rx="6" ry="3.5" fill="#F9A8C4" opacity="0.5" />
+      <ellipse cx="74" cy="62" rx="6" ry="3.5" fill="#F9A8C4" opacity="0.5" />
 
       {/* Smile */}
-      <path d="M32 70 Q50 82 68 70" stroke="#38bdf8" strokeWidth="3" fill="none" strokeLinecap="round" />
+      <path d="M 38,62 Q 50,72 62,62" stroke="#1A1A2E" strokeWidth="2.5" fill="none" strokeLinecap="round" />
 
-      {/* Cheek glow */}
-      <circle cx="24" cy="65" r="10" fill="url(#alpha-cheek)" />
-      <circle cx="76" cy="65" r="10" fill="url(#alpha-cheek)" />
+      {/* Side indicator dots */}
+      <circle cx="17" cy="37" r="2.5" fill="#1A1A2E" />
+      <circle cx="17" cy="44" r="2.5" fill="#1A1A2E" />
 
-      {/* Ear ports */}
-      <circle cx="12" cy="51" r="7" fill="#071323" stroke="#1d4ed8" strokeWidth="1.5" />
-      <circle cx="12" cy="51" r="2.5" fill="#38bdf8" />
-      <circle cx="88" cy="51" r="7" fill="#071323" stroke="#1d4ed8" strokeWidth="1.5" />
-      <circle cx="88" cy="51" r="2.5" fill="#38bdf8" />
+      {/* Head outline on top (covers dome overflow) */}
+      <rect x="9" y="11" width="82" height="61" rx="18" stroke="#1A1A2E" strokeWidth="3" />
+
+      {/* Body / shoulders */}
+      <path d="M 2,100 Q 8,77 26,74 L 74,74 Q 92,77 98,100 Z" fill="#EDE8F8" stroke="#1A1A2E" strokeWidth="3" />
+      {/* Chest panel */}
+      <rect x="35" y="82" width="30" height="13" rx="6.5" fill="#C8C0E8" stroke="#1A1A2E" strokeWidth="2" />
+      {/* Indicator bar */}
+      <rect x="40" y="86" width="20" height="5" rx="2.5" fill="#5DC8A8" stroke="#1A1A2E" strokeWidth="1.5" />
     </svg>
   )
 }
 
 export function OmegaAvatar({ className = 'w-10 h-10' }) {
   return (
-    <svg
-      viewBox="0 0 100 100"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      role="img"
-      aria-label="Omega"
-    >
-      <defs>
-        <radialGradient id="omega-head" cx="38%" cy="30%" r="65%">
-          <stop offset="0%" stopColor="#92400e" />
-          <stop offset="100%" stopColor="#180700" />
-        </radialGradient>
-        <radialGradient id="omega-iris" cx="30%" cy="30%" r="70%">
-          <stop offset="0%" stopColor="#fef08a" />
-          <stop offset="40%" stopColor="#f59e0b" />
-          <stop offset="100%" stopColor="#92400e" />
-        </radialGradient>
-      </defs>
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} role="img" aria-label="Omega">
+      {/* Antenna */}
+      <line x1="50" y1="12" x2="50" y2="6" stroke="#1A1A2E" strokeWidth="2.5" strokeLinecap="round" />
+      <circle cx="50" cy="5" r="3.5" fill="#FFE0A0" stroke="#1A1A2E" strokeWidth="2" />
 
-      {/* Head */}
-      <rect x="11" y="11" width="78" height="78" rx="22" fill="url(#omega-head)" />
-      {/* Head highlight */}
-      <ellipse cx="36" cy="22" rx="16" ry="7" fill="white" opacity="0.06" />
+      {/* Ear left */}
+      <rect x="2" y="38" width="9" height="20" rx="4" fill="#FFE0A0" stroke="#1A1A2E" strokeWidth="2.5" />
+      {/* Ear right */}
+      <rect x="89" y="38" width="9" height="20" rx="4" fill="#FFE0A0" stroke="#1A1A2E" strokeWidth="2.5" />
 
-      {/* Face plate */}
-      <rect x="19" y="27" width="62" height="54" rx="14" fill="#080200" opacity="0.65" />
+      {/* Head fill */}
+      <rect x="9" y="11" width="82" height="61" rx="18" fill="#FFF0D8" />
 
-      {/* Omega symbol — forehead */}
-      <path d="M40 22 Q50 30 60 22" stroke="#f59e0b" strokeWidth="1.8" fill="none" strokeLinecap="round" />
-      <line x1="40" y1="22.5" x2="37.5" y2="27" stroke="#f59e0b" strokeWidth="1.8" strokeLinecap="round" />
-      <line x1="60" y1="22.5" x2="62.5" y2="27" stroke="#f59e0b" strokeWidth="1.8" strokeLinecap="round" />
-
-      {/* Eyelids — half-closed, analytical */}
-      <path d="M25 46 Q37 37 49 46" fill="#100400" />
-      <path d="M51 46 Q63 37 75 46" fill="#100400" />
-
-      {/* Eyebrows — furrowed/skeptical */}
-      <path d="M26 41 Q37 36 48 40" stroke="#f59e0b" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-      <path d="M52 40 Q63 36 74 41" stroke="#f59e0b" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      {/* Face dome */}
+      <path d="M 19,72 Q 19,24 50,24 Q 81,24 81,72 Z" fill="#F5B84C" stroke="#1A1A2E" strokeWidth="2.5" />
+      {/* Dome gloss */}
+      <ellipse cx="64" cy="34" rx="13" ry="8" fill="white" opacity="0.28" transform="rotate(-22 64 34)" />
 
       {/* Left eye */}
-      <circle cx="37" cy="52" r="11" fill="white" />
-      <circle cx="37" cy="52" r="9" fill="url(#omega-iris)" />
-      <circle cx="37" cy="52" r="5.5" fill="#7c2d12" />
-      <circle cx="37" cy="52" r="3.5" fill="#0f0200" />
-      <circle cx="34.5" cy="49.5" r="2" fill="white" />
-      <circle cx="39" cy="54" r="0.8" fill="white" opacity="0.5" />
+      <circle cx="35" cy="50" r="10" fill="white" stroke="#1A1A2E" strokeWidth="2.5" />
+      <circle cx="35" cy="50" r="5" fill="#1A1A2E" />
+      <circle cx="32" cy="47" r="2" fill="white" />
 
       {/* Right eye */}
-      <circle cx="63" cy="52" r="11" fill="white" />
-      <circle cx="63" cy="52" r="9" fill="url(#omega-iris)" />
-      <circle cx="63" cy="52" r="5.5" fill="#7c2d12" />
-      <circle cx="63" cy="52" r="3.5" fill="#0f0200" />
-      <circle cx="60.5" cy="49.5" r="2" fill="white" />
-      <circle cx="65" cy="54" r="0.8" fill="white" opacity="0.5" />
+      <circle cx="65" cy="50" r="10" fill="white" stroke="#1A1A2E" strokeWidth="2.5" />
+      <circle cx="65" cy="50" r="5" fill="#1A1A2E" />
+      <circle cx="62" cy="47" r="2" fill="white" />
 
-      {/* Neutral mouth — slight downturn */}
-      <path d="M33 71 Q50 65 67 71" stroke="#f59e0b" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+      {/* Cheek blush */}
+      <ellipse cx="26" cy="62" rx="6" ry="3.5" fill="#F9A8C4" opacity="0.5" />
+      <ellipse cx="74" cy="62" rx="6" ry="3.5" fill="#F9A8C4" opacity="0.5" />
 
-      {/* Ear ports */}
-      <circle cx="11" cy="50" r="7" fill="#1a0700" stroke="#78350f" strokeWidth="1.5" />
-      <circle cx="11" cy="50" r="2.5" fill="#f59e0b" />
-      <circle cx="89" cy="50" r="7" fill="#1a0700" stroke="#78350f" strokeWidth="1.5" />
-      <circle cx="89" cy="50" r="2.5" fill="#f59e0b" />
+      {/* Smile */}
+      <path d="M 38,62 Q 50,72 62,62" stroke="#1A1A2E" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+
+      {/* Side indicator dots */}
+      <circle cx="17" cy="37" r="2.5" fill="#1A1A2E" />
+      <circle cx="17" cy="44" r="2.5" fill="#1A1A2E" />
+
+      {/* Head outline on top */}
+      <rect x="9" y="11" width="82" height="61" rx="18" stroke="#1A1A2E" strokeWidth="3" />
+
+      {/* Body / shoulders */}
+      <path d="M 2,100 Q 8,77 26,74 L 74,74 Q 92,77 98,100 Z" fill="#FFF0D8" stroke="#1A1A2E" strokeWidth="3" />
+      {/* Chest panel */}
+      <rect x="35" y="82" width="30" height="13" rx="6.5" fill="#FFD090" stroke="#1A1A2E" strokeWidth="2" />
+      {/* Indicator bar */}
+      <rect x="40" y="86" width="20" height="5" rx="2.5" fill="#FF8C42" stroke="#1A1A2E" strokeWidth="1.5" />
     </svg>
   )
 }

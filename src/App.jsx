@@ -40,7 +40,7 @@ export default function App() {
   const isRunning = ['researchA', 'researchB', 'runningA', 'runningB', 'synthesis'].includes(phase)
 
   return (
-    <div className="min-h-dvh bg-slate-950 text-slate-100 flex flex-col">
+    <div className="min-h-dvh bg-m3-bg text-m3-primary flex flex-col">
       {!apiKey && <ApiKeyModal onSave={setApiKey} />}
 
       <ConfigPanel
@@ -49,16 +49,18 @@ export default function App() {
         onStart={handleStart}
         onClearKey={handleClearKey}
         disabled={isRunning || waitingForContinue}
+        apiKey={apiKey}
       />
 
-      <header className="sticky top-0 z-10 h-14 bg-slate-900/95 backdrop-blur border-b border-slate-800 flex items-center px-4 gap-3">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {/* M3 Top App Bar */}
+      <header className="sticky top-0 z-10 h-14 bg-m3-surface border-b border-m3-outline-variant flex items-center px-4 gap-3 shadow-sm">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#001D3D" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M14.5 2L9 7.5 3 9l4 4-1 5 5-2.5L16 20l1-6 4-3.5-5.5-1z" />
         </svg>
-        <h1 className="font-bold text-base flex-1 tracking-tight">Dual-AI Arena</h1>
+        <h1 className="font-semibold text-base flex-1 tracking-tight text-m3-primary">Dual-AI Arena</h1>
         <button
           onClick={() => setSettingsOpen(true)}
-          className="p-2 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer text-slate-400 hover:text-slate-200"
+          className="p-2 rounded-full hover:bg-m3-surface-1 transition-colors cursor-pointer text-m3-secondary hover:text-m3-primary"
           aria-label="開啟設定"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

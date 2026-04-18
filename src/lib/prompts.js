@@ -30,5 +30,26 @@ export const SYNTHESIS_PROMPT =
 export const MARP_PROMPT =
   '請將以上論辯精煉為一段 Marp Markdown 代碼。使用 `theme: gaia`，分頁清晰，內容包含主題、雙方論點、三頁攻防摘要與總結。只輸出 Markdown 代碼，不要加任何說明。'
 
+export const ROLE_SUGGESTION_PROMPT =
+  `你是一位論辯設計師。根據使用者提供的論辯主題，為「支持方」與「反對方」各設計一個角色。
+
+輸出格式（嚴格遵守，只輸出 JSON，無其他文字）：
+{
+  "roleA": {
+    "name": "角色名稱（2-4字，有個性感）",
+    "systemPrompt": "系統提示詞內容"
+  },
+  "roleB": {
+    "name": "角色名稱（2-4字，有個性感）",
+    "systemPrompt": "系統提示詞內容"
+  }
+}
+
+規則：
+- roleA 為支持方，roleB 為反對方，立場必須鮮明對立
+- 每個系統提示詞約 150-200 字，包含：角色定位、論辯風格、核心主張方向、回應對方的策略
+- 提示詞必須使用繁體中文
+- 不要加任何說明、前言或 markdown 格式，直接輸出純 JSON`
+
 export const RESEARCH_PROMPT =
   '你正在準備參與一場論辯或討論。請先使用搜尋工具，針對討論情境查詢最新的相關資訊、數據、研究案例與各方代表性觀點，整理成簡明的研究摘要。這份摘要將作為你後續論辯論點的事實依據，請盡量引用具體的數字、來源與實例。'

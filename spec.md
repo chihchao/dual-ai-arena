@@ -27,6 +27,7 @@
 ### 3.1 憑證與安全性 (Credentials & Security)
 * **API Key 授權**：使用者需於首次使用前輸入個人 Google Gemini API Key。
 * **本地化儲存**：API Key 僅存於 `localStorage`，禁止上傳至任何後端伺服器。
+* **首次引導**：有 Key 但尚未設定過論辯時（`VISITED_KEY` 未設定），自動開啟設定面板。
 * **安全性原則**：系統完全運行於客戶端。
 
 ### 3.2 配置中心 (Configuration Center)
@@ -34,6 +35,9 @@
     * 提供兩個獨立的編輯區域，設定 Role A 與 Role B 的 **名稱** 與 **系統提示詞**。
     * 預設角色：Alpha（支持方）與 Omega（反對方）。
     * 設定面板為 modal 底部抽屜（mobile）/ 居中 dialog（desktop），支援 2 欄 role 卡片。
+* **AI 角色建議 (AI Role Suggestion)**：
+    * 輸入論辯主題後，點擊「AI 建議角色提示詞」，呼叫 `generateRoleSuggestions()` 自動生成雙方的角色名稱與系統提示詞。
+    * 生成結果直接填入兩個角色卡片，使用者可進一步編輯。
 * **流程設定 (Flow Controls)**：
     * **論辯主題**：使用者輸入核心問題。
     * **回合數控制**：可設定雙方往返次數（預設 3，最大 10）。
@@ -47,7 +51,8 @@
 * **開場研究階段（可選）**：
     * 論辯開始前，雙方角色各自使用 Google Search grounding 搜尋主題相關資訊。
     * 研究摘要附加至各自的 system prompt 作為事實依據。
-* **脈絡維護**：`buildContextMessage()` 將完整對話歷史嵌入每輪請求。
+    * 研究訊息以 `type: 'research'` 標記，UI 以虛線框和搜尋圖示徽章區分。
+* **脈絡維護**：`buildContextMessage()` 將完整對話歷史嵌入每輪請求；`buildReviewMessage()` 用於總結和 Marp 生成的非串流呼叫。
 * **打字機效果**：Streaming API 即時呈現文字生成過程；串流中訊息框帶 `animate-pulse`。
 * **Google Search Grounding**：論辯輪次預設啟用 `googleSearch` tool。
 * **自動重試 (Auto Retry)**：
@@ -66,9 +71,10 @@
     * 提供代碼預覽框（最高 320px，可捲動）與一鍵複製功能。
 
 ### 3.5 角色視覺設計 (Character Avatars)
-* **AlphaAvatar**：藍色（sky）系 SVG 機器人，天線 + 笑臉造型，代表支持方。
-* **OmegaAvatar**：琥珀（amber）系 SVG 機器人，Omega 符號額頭 + 嚴肅眼神，代表反對方。
+* **AlphaAvatar**：藍色（sky）圓頂面罩 SVG 機器人，帶天線、笑臉、粉紅腮紅，代表支持方。用色：頭部 `#EDE8F8`、面罩 `#89C4F0`、胸部指示條 `#5DC8A8`。
+* **OmegaAvatar**：琥珀（amber）圓頂面罩 SVG 機器人，造型與 Alpha 同款，用色不同。用色：頭部 `#FFF0D8`、面罩 `#F5B84C`、胸部指示條 `#FF8C42`。
 * 兩個 avatar 均用於 ConfigPanel 角色卡片標題、MessageBubble 訊息頭像、DebateArena idle 頁面展示。
+* 接受 `className` prop 控制尺寸（預設 `w-10 h-10`）。
 
 ---
 
@@ -81,18 +87,19 @@
 | **Synthesis** | 中立分析 | 輸出 `## 共識 (Consensus)` 與 `## 分歧 (Conflict)` 結構化 Markdown |
 | **Marp** | 簡報工程師 | 生成 `theme: gaia` Marp Markdown，僅輸出代碼，不加說明 |
 | **Research** | 情蒐員 | 使用 Google Search grounding 蒐集事實、數據、案例 |
+| **Role Suggestion** | 論辯設計師 | 根據主題生成雙方角色名稱與系統提示詞，輸出純 JSON |
 
 ---
 
 ## 5. 介面流程 (User Journey)
 
 1. **進入首頁**：檢查 `localStorage` API Key，若無則彈出輸入 Modal。
-2. **首次進入**：有 Key 但未曾設定過，自動開啟設定面板。
-3. **設定參數**：在 ConfigPanel 中設定主題、角色、回合數、模型、模式與研究開關。
+2. **首次進入**：有 Key 但 `VISITED_KEY` 未設定，自動開啟設定面板。
+3. **設定參數**：在 ConfigPanel 中設定主題、角色（可用 AI 建議）、回合數、模型、模式與研究開關。
 4. **啟動論辯**：點擊「開始論辯」，依設定執行研究→論辯→總結流程。
 5. **即時觀看**：單欄垂直訊息流，Alpha 訊息靠左、Omega 訊息靠右，研究訊息以虛線框區分。
 6. **手動模式**：每輪結束後顯示「繼續下一輪 →」按鈕。
-7. **查看結案**：自動生成共識/分歧總結卡片（indigo/purple 漸層背景）。
+7. **查看結案**：自動生成共識/分歧總結卡片。
 8. **匯出成果**：下載 MD 記錄，或生成 Marp 代碼複製至簡報工具。
 
 ---
@@ -107,6 +114,6 @@
 
 ## 7. 非功能性需求 (Non-functional Requirements)
 * **響應式**：ConfigPanel 在 mobile 為底部抽屜，desktop 為居中 dialog（max-w-2xl）；角色卡片 mobile 1 欄、desktop 2 欄。
-* **Markdown 渲染**：所有訊息泡泡與總結卡片使用 `react-markdown` + `prose-invert`。
+* **Markdown 渲染**：所有訊息泡泡與總結卡片使用 `react-markdown` + `prose-sm`。
 * **穩健性**：429/503 自動重試，超過後由使用者決定是否繼續；非可重試錯誤直接顯示錯誤訊息並重置至 idle。
 * **無障礙**：SVG 元素包含 `role="img"` 與 `aria-label`。

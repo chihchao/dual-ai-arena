@@ -1,4 +1,5 @@
 import { GoogleGenAI } from '@google/genai'
+import { ROLE_SUGGESTION_PROMPT } from './prompts'
 
 export function isRetryable(err) {
   const code = err?.error?.code ?? err?.code
@@ -85,6 +86,27 @@ function buildReviewMessage(topic, history) {
     msg += `【${entry.name}】\n${entry.content}\n\n`
   }
   return msg
+}
+
+/**
+ * Generates opposing role suggestions for a given debate topic.
+ * @param {string} apiKey
+ * @param {{ topic: string, model: string }} opts
+ * @returns {Promise<{ roleA: { name: string, systemPrompt: string }, roleB: { name: string, systemPrompt: string } }>}
+ */
+export async function generateRoleSuggestions(apiKey, { topic, model }) {
+  const ai = new GoogleGenAI({ apiKey })
+  const response = await ai.models.generateContent({
+    model,
+    config: { systemInstruction: ROLE_SUGGESTION_PROMPT },
+    contents: [{ role: 'user', parts: [{ text: `論辯主題：${topic}` }] }],
+  })
+  const raw = response.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
+  const parsed = JSON.parse(raw)
+  if (!parsed.roleA?.name || !parsed.roleA?.systemPrompt || !parsed.roleB?.name || !parsed.roleB?.systemPrompt) {
+    throw new Error('AI 回傳格式不正確')
+  }
+  return parsed
 }
 
 /**
