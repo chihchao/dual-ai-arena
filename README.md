@@ -40,7 +40,7 @@ npm run dev
 
 ### 線上版本
 
-部署於 GitHub Pages：`https://imchihchao.github.io/dual-ai-arena/`
+部署於 GitHub Pages：`https://chihchao.github.io/dual-ai-arena/`
 
 ---
 
