@@ -84,7 +84,7 @@ export function useDebateEngine() {
     return accumulated
   }, [])
 
-  const runTurn = useCallback(async (role, name, systemPrompt, topic, apiKey, model) => {
+  const runTurn = useCallback(async (role, name, systemPrompt, topic, apiKey, model, wordLimit = 300) => {
     let accumulated = ''
     const msgId = crypto.randomUUID()
     setMessages((prev) => [...prev, { role, name, content: '', id: msgId, streaming: true }])
@@ -96,6 +96,7 @@ export function useDebateEngine() {
         history: historyRef.current,
         model,
         useSearch: true,
+        wordLimit,
       })) {
         accumulated += chunk
         setMessages((prev) =>
@@ -116,7 +117,7 @@ export function useDebateEngine() {
     return accumulated
   }, [])
 
-  const startDebate = useCallback(async ({ apiKey, topic, roleA, roleB, rounds, model, autoMode, useResearch }) => {
+  const startDebate = useCallback(async ({ apiKey, topic, roleA, roleB, rounds, model, autoMode, useResearch, wordLimit = 300 }) => {
     setError(null)
     setSynthesis(null)
     setMessages([])
@@ -139,12 +140,12 @@ export function useDebateEngine() {
 
       for (let round = 0; round < rounds; round++) {
         setPhase('runningA')
-        await withRetry(() => runTurn('A', roleA.name, promptA, topic, apiKey, model))
+        await withRetry(() => runTurn('A', roleA.name, promptA, topic, apiKey, model, wordLimit))
 
         if (!autoMode) await waitForUser('manual')
 
         setPhase('runningB')
-        await withRetry(() => runTurn('B', roleB.name, promptB, topic, apiKey, model))
+        await withRetry(() => runTurn('B', roleB.name, promptB, topic, apiKey, model, wordLimit))
 
         if (!autoMode && round < rounds - 1) await waitForUser('manual')
       }

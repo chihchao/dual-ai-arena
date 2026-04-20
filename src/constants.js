@@ -8,3 +8,4 @@ export const DEFAULT_MODEL = MODELS[0].id
 export const DEFAULT_ROUNDS = 3
 export const DEFAULT_AUTO_MODE = false
 export const DEFAULT_USE_RESEARCH = false
+export const DEFAULT_WORD_LIMIT = 300

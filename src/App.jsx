@@ -24,10 +24,10 @@ export default function App() {
   } = useDebateEngine()
   const debateConfigRef = useRef({ topic: '', model: DEFAULT_MODEL })
 
-  const handleStart = ({ roleA, roleB, topic, rounds, model, autoMode, useResearch }) => {
+  const handleStart = ({ roleA, roleB, topic, rounds, model, autoMode, useResearch, wordLimit }) => {
     localStorage.setItem(VISITED_KEY, '1')
     debateConfigRef.current = { topic, model }
-    startDebate({ apiKey, topic, roleA, roleB, rounds, model, autoMode, useResearch })
+    startDebate({ apiKey, topic, roleA, roleB, rounds, model, autoMode, useResearch, wordLimit })
     setSettingsOpen(false)
   }
 

@@ -14,16 +14,16 @@ export function isRetryable(err) {
  * @param {Array<{role: 'A'|'B', name: string, content: string}>} history
  * @returns {string}
  */
-export function buildContextMessage(topic, history) {
+export function buildContextMessage(topic, history, wordLimit = 300) {
   let msg = `討論情境：${topic}\n\n`
   if (history.length === 0) {
-    msg += '請針對此情境，直接提出你的核心立場與第一個論點。約 500 字，不做背景說明，直接陳述你的觀點。'
+    msg += `請針對此情境，直接提出你的核心立場與第一個論點。約 ${wordLimit} 字，不做背景說明，直接陳述你的觀點。`
   } else {
     msg += '以下是目前的論辯紀錄：\n\n'
     for (const entry of history) {
       msg += `【${entry.name}】\n${entry.content}\n\n`
     }
-    msg += '請從你的立場出發，針對對方剛才的論點提出明確反駁，並強化你自己的主張。約 500 字，直接切入反駁，不做摘要或總結。'
+    msg += `請從你的立場出發，針對對方剛才的論點提出明確反駁，並強化你自己的主張。約 ${wordLimit} 字，直接切入反駁，不做摘要或總結。`
   }
   return msg
 }
@@ -59,9 +59,9 @@ export async function* streamResearchTurn(apiKey, { systemPrompt, topic, model }
  * @param {{ systemPrompt: string, topic: string, history: Array, model: string, useSearch?: boolean }} opts
  * @yields {string} text chunks
  */
-export async function* streamDebateTurn(apiKey, { systemPrompt, topic, history, model, useSearch = true }) {
+export async function* streamDebateTurn(apiKey, { systemPrompt, topic, history, model, useSearch = true, wordLimit = 300 }) {
   const ai = new GoogleGenAI({ apiKey })
-  const userMessage = buildContextMessage(topic, history)
+  const userMessage = buildContextMessage(topic, history, wordLimit)
 
   const config = { systemInstruction: systemPrompt }
   if (useSearch) {
@@ -94,12 +94,12 @@ function buildReviewMessage(topic, history) {
  * @param {{ topic: string, model: string }} opts
  * @returns {Promise<{ roleA: { name: string, systemPrompt: string }, roleB: { name: string, systemPrompt: string } }>}
  */
-export async function generateRoleSuggestions(apiKey, { topic, model }) {
+export async function generateRoleSuggestions(apiKey, { topic, model, wordLimit = 300 }) {
   const ai = new GoogleGenAI({ apiKey })
   const response = await ai.models.generateContent({
     model,
     config: { systemInstruction: ROLE_SUGGESTION_PROMPT },
-    contents: [{ role: 'user', parts: [{ text: `論辯主題：${topic}` }] }],
+    contents: [{ role: 'user', parts: [{ text: `論辯主題：${topic}\n\n字數限制：每次發言約 ${wordLimit} 字，請在系統提示詞中明確包含此字數要求。` }] }],
   })
   const raw = response.text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim()
   const parsed = JSON.parse(raw)

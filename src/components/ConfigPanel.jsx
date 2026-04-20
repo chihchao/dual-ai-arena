@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ROLE_A_DEFAULT, ROLE_B_DEFAULT } from '../lib/prompts'
-import { DEFAULT_ROUNDS, DEFAULT_MODEL, DEFAULT_AUTO_MODE, DEFAULT_USE_RESEARCH } from '../constants'
+import { DEFAULT_ROUNDS, DEFAULT_MODEL, DEFAULT_AUTO_MODE, DEFAULT_USE_RESEARCH, DEFAULT_WORD_LIMIT } from '../constants'
 import { AlphaAvatar, OmegaAvatar } from './CharacterAvatar'
 import { generateRoleSuggestions } from '../lib/gemini'
 
@@ -12,6 +12,7 @@ export function ConfigPanel({ open, onClose, onStart, onClearKey, disabled, apiK
   const [model, setModel] = useState(DEFAULT_MODEL)
   const [autoMode, setAutoMode] = useState(DEFAULT_AUTO_MODE)
   const [useResearch, setUseResearch] = useState(DEFAULT_USE_RESEARCH)
+  const [wordLimit, setWordLimit] = useState(DEFAULT_WORD_LIMIT)
   const [suggesting, setSuggesting] = useState(false)
   const [suggestError, setSuggestError] = useState(null)
 
@@ -19,7 +20,7 @@ export function ConfigPanel({ open, onClose, onStart, onClearKey, disabled, apiK
     setSuggesting(true)
     setSuggestError(null)
     try {
-      const result = await generateRoleSuggestions(apiKey, { topic: topic.trim(), model })
+      const result = await generateRoleSuggestions(apiKey, { topic: topic.trim(), model, wordLimit })
       setRoleA(result.roleA)
       setRoleB(result.roleB)
     } catch (err) {
@@ -32,7 +33,7 @@ export function ConfigPanel({ open, onClose, onStart, onClearKey, disabled, apiK
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!topic.trim()) return
-    onStart({ roleA, roleB, topic: topic.trim(), rounds, model, autoMode, useResearch })
+    onStart({ roleA, roleB, topic: topic.trim(), rounds, model, autoMode, useResearch, wordLimit })
   }
 
   if (!open) return null
@@ -82,7 +83,7 @@ export function ConfigPanel({ open, onClose, onStart, onClearKey, disabled, apiK
               onChange={(e) => setTopic(e.target.value)}
               autoFocus
             />
-            <div className="flex items-center gap-3 mt-2">
+            <div className="flex items-center gap-3 mt-2 flex-wrap">
               <button
                 type="button"
                 onClick={handleSuggest}
@@ -94,6 +95,19 @@ export function ConfigPanel({ open, onClose, onStart, onClearKey, disabled, apiK
                 </svg>
                 {suggesting ? 'AI 思考中...' : 'AI 建議角色提示詞'}
               </button>
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-m3-secondary whitespace-nowrap">字數限制</label>
+                <input
+                  type="number"
+                  min={50}
+                  max={2000}
+                  step={50}
+                  value={wordLimit}
+                  onChange={(e) => setWordLimit(Number(e.target.value))}
+                  className={`${inputCls} ${focusAccent} w-24 text-center`}
+                />
+                <span className="text-sm text-m3-secondary">字</span>
+              </div>
               {suggestError && (
                 <span className="text-sm text-m3-error">{suggestError}</span>
               )}
